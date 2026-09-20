@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.ejuro.extended-theme-picker",
+  "name": "Extended Theme Picker",
+  "version": "1.0.0",
+  "author": "Erik Johansson",
+  "description": "Theme collections, favorites, and a grouped grid for the Omarchy theme picker",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "ImagePicker.qml"
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.image-picker"
+  }
+}
