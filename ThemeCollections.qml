@@ -694,8 +694,16 @@ FocusScope {
                 selectByMouse: true
                 selectionColor: Color.accent
                 selectedTextColor: Color.background
-                onAccepted: root.submitName()
-                Keys.onEscapePressed: root.handleEscape()
+                Keys.onPressed: function(event) {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        // Consume Enter before closing the dialog moves focus to the picker.
+                        event.accepted = true
+                        if (!event.isAutoRepeat) root.submitName()
+                    } else if (event.key === Qt.Key_Escape) {
+                        event.accepted = true
+                        root.handleEscape()
+                    }
+                }
             }
         }
 
