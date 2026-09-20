@@ -38,6 +38,7 @@ FocusScope {
     property string removalGroupName: ''
     property var removalOptions: []
     property int removalIndex: 0
+    property bool removalFromMembers: false
     readonly property bool storageActive: storage.running
     readonly property bool busy: !ready || themeRemoval.running || pendingUninstall !== ''
     readonly property bool removalConfirmation: dialog === 'delete' || dialog === 'delete-member' || dialog === 'delete-theme'
@@ -237,6 +238,7 @@ FocusScope {
     }
     function showDialog(kind) {
         if (busy) return
+        removalFromMembers = false
         dialogError = ""
         creatingForMember = kind === 'new-member'
         if (creatingForMember) kind = 'new'
@@ -247,6 +249,10 @@ FocusScope {
             memberIndex = 0
         }
         if ((kind === 'rename' || kind === 'delete') && !customCollection) return
+        if (kind === 'delete') {
+            removalGroupId = collectionId
+            removalGroupName = group.name
+        }
         if (kind === 'remove') {
             removalSlug = theme ? Model.slug(theme) : ''
             removalName = theme ? Model.label(theme) : ''
@@ -277,7 +283,8 @@ FocusScope {
     }
     function closeDialog() {
         if (themeRemoval.running || pendingUninstall) return
-        dialog = removalConfirmation ? 'remove' : creatingForMember ? 'members' : ''
+        dialog = removalConfirmation ? (removalFromMembers ? 'members' : 'remove') : creatingForMember ? 'members' : ''
+        removalFromMembers = false
         creatingForMember = false
         focusPicker()
     }
@@ -304,12 +311,25 @@ FocusScope {
         save(next)
         closeDialog()
     }
+    function removeMemberCollection() {
+        var entry = memberGroups[memberIndex]
+        if (busy || !entry || !collectionData.collections.some(function(g) { return g.id === entry.id })) return
+        removalGroupId = entry.id
+        removalGroupName = entry.name
+        removalFromMembers = true
+        dialogError = ''
+        dialog = 'delete'
+        focusPicker()
+    }
     function deleteCollection() {
+        if (!collectionData.collections.some(function(g) { return g.id === root.removalGroupId })) return
         var next = copyData()
-        next.collections = next.collections.filter(function(g) { return g.id !== root.collectionId })
+        next.collections = next.collections.filter(function(g) { return g.id !== root.removalGroupId })
         save(next)
-        dialog = ''
-        closeDialog()
+        dialog = removalFromMembers ? 'members' : ''
+        removalFromMembers = false
+        memberIndex = Math.min(memberIndex, memberGroups.length - 1)
+        focusPicker()
     }
 
     function selectRemoval(index) {
@@ -418,6 +438,7 @@ FocusScope {
                 if (event.key === Qt.Key_Up) memberIndex = Math.max(0, memberIndex - 1)
                 else if (event.key === Qt.Key_Down) memberIndex = Math.min(memberGroups.length - 1, memberIndex + 1)
                 else if (event.key === Qt.Key_Space || event.key === Qt.Key_Return || event.key === Qt.Key_Enter) toggleMember(memberIndex)
+                else if (event.key === Qt.Key_Delete && !event.isAutoRepeat) removeMemberCollection()
                 memberList.positionViewAtIndex(memberIndex, ListView.Contain)
             } else if (dialog === 'remove') {
                 if (event.key === Qt.Key_Up) removalIndex = Math.max(0, removalIndex - 1)
@@ -667,7 +688,7 @@ FocusScope {
             wrapMode: Text.WordWrap
             text: root.dialog === 'new' ? 'New collection' : root.dialog === 'rename' ? 'Rename collection'
                 : root.dialog === 'remove' ? 'Remove…'
-                : root.dialog === 'delete' ? 'Remove collection “' + root.group.name + '”?'
+                : root.dialog === 'delete' ? 'Remove collection “' + root.removalGroupName + '”?'
                 : root.dialog === 'delete-member' ? 'Remove “' + root.removalName + '” from “' + root.removalGroupName + '”?'
                 : root.dialog === 'delete-theme' ? 'Uninstall “' + root.removalName + '”?'
                 : 'Add “' + root.memberName + '” to…'
@@ -801,6 +822,12 @@ FocusScope {
             anchors.bottom: parent.bottom
             anchors.margins: 24
             spacing: 28
+            Action {
+                visible: root.dialog === 'members' && root.memberIndex > 0 && root.memberIndex < root.memberGroups.length - 1
+                enabled: !root.busy
+                text: 'Delete collection · Del'
+                onTriggered: root.removeMemberCollection()
+            }
             Action { enabled: !themeRemoval.running; text: root.dialog === 'members' ? 'Done' : root.removalConfirmation ? 'Back' : 'Cancel'; onTriggered: root.closeDialog() }
             Action {
                 visible: root.dialog !== 'members' && root.dialog !== 'remove'

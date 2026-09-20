@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.ejuro.extended-theme-picker",
   "name": "Extended Theme Picker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Erik Johansson",
   "description": "Theme collections, favorites, and a grouped grid for the Omarchy theme picker",
   "kinds": [

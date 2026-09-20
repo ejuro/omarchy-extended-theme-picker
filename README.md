@@ -47,7 +47,7 @@ The picker opens on the active theme in Favorites if it is starred, otherwise in
 
 ## Organize and remove
 
-Use Ctrl+M to change memberships. “New collection…” creates a collection and adds the selected theme in one step.
+Use Ctrl+M to change memberships. “New collection…” creates a collection and adds the selected theme in one step. To delete a collection here, highlight it and press Delete (or click “Delete collection”), then confirm. You return to the membership menu, and all themes stay installed. Favorites cannot be deleted.
 
 Delete opens choices followed by a confirmation. Removing a membership or a collection keeps theme files installed. **Uninstall removes a user-installed theme's files, including local edits, and its memberships.** The active theme and Omarchy defaults cannot be uninstalled here. Escape returns from confirmation to the choices.
 
