@@ -524,9 +524,9 @@ FocusScope {
                 Behavior on sliceWidth { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
                 width: stage.width
                 height: stage.rowPitch
-                // Fixed slots: focusing a collection never reorders its neighbors.
+                // Center content in each fixed slot so expansion is balanced above and below.
                 // Scroll only when navigating beyond the three visible rows.
-                y: 40 + (index - root.firstVisibleRow) * stage.rowPitch
+                y: 40 + (index - root.firstVisibleRow) * stage.rowPitch + (240 - previewHeight) / 2
                 visible: index >= root.firstVisibleRow && index < root.firstVisibleRow + 3 && root.ready
                 opacity: focused ? 1 : 0.7
                 z: focused ? 2 : 1
